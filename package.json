@@ -2,12 +2,13 @@
   "name": "monopoly-arena-server",
   "version": "1.0.0",
   "description": "Monopoly Arena server",
-  "main": "index.js",
+  "main": "server/index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node server/index.js"
   },
   "dependencies": {
     "express": "^4.22.1",
-    "mongoose": "^8.0.0"
+    "mongoose": "^8.0.0",
+    "socket.io": "^4.7.5"
   }
 }
