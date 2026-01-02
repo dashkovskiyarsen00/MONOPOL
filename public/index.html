@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Монополия Онлайн</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="logo">M</span>
+        <div>
+          <h1>Монополия Онлайн</h1>
+          <p>Классическая настольная стратегия</p>
+        </div>
+      </div>
+      <nav class="nav">
+        <button class="nav-item active" data-tab="lobby">Лобби</button>
+        <button class="nav-item" data-tab="quick-search">Быстрый поиск</button>
+        <button class="nav-item" data-tab="profile">Профиль</button>
+        <button class="nav-item" data-tab="stats">Статистика</button>
+        <button class="nav-item" data-tab="leaderboard">Рейтинг</button>
+        <button class="nav-item" data-tab="store">Магазин</button>
+        <button class="nav-item" data-tab="inventory">Инвентарь</button>
+        <button class="nav-item" data-tab="search">Поиск игроков</button>
+        <button class="nav-item" data-tab="friends">Друзья</button>
+        <button class="nav-item" data-tab="achievements">Достижения</button>
+        <button class="nav-item" data-tab="rules">Правила</button>
+        <button class="nav-item" data-tab="settings">Настройки</button>
+        <button class="nav-item" data-tab="clans">Кланы</button>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="secondary" id="switch-account">Сменить аккаунт</button>
+      </div>
+    </aside>
+
+    <main class="content">
+      <header class="topbar">
+        <div class="status">
+          <span class="dot"></span>
+          <span>Онлайн: <strong id="online-count">0</strong> игроков</span>
+          <span class="chip" id="global-level">Уровень 1</span>
+        </div>
+        <div class="actions">
+          <button class="ghost" id="open-help">Помощь</button>
+          <button class="primary" id="open-game" data-game-title="Комната: Новая игра" data-game-mode="Создание комнаты">Создать игру</button>
+        </div>
+      </header>
+      <div class="notification" id="notification" aria-live="polite"></div>
+
+      <section class="tab-panel active" id="tab-lobby">
+        <div class="panel-header">
+          <h2>Лобби и матчи</h2>
+          <p>Создавайте комнаты, приглашайте друзей, следите за текущими матчами.</p>
+        </div>
+        <div class="cards">
+          <div class="card">
+            <h3>Быстрое подключение</h3>
+            <p>Автоподбор по рейтингу, матч готов за секунды.</p>
+            <button class="primary" id="quick-join" data-game-title="Классический матч" data-game-mode="Базовый режим">Найти матч</button>
+          </div>
+          <div class="card">
+            <h3>Создать комнату</h3>
+            <p>Параметры: количество игроков, приватность, ставка, тема поля.</p>
+            <button class="secondary" id="create-room" data-game-title="Комната: Настроить матч" data-game-mode="Создание комнаты">Создать</button>
+          </div>
+          <div class="card">
+            <h3>Текущие комнаты</h3>
+            <p class="empty-state" id="room-empty">Пока нет активных комнат. Создайте первую, чтобы начать матч.</p>
+            <ul class="room-list" id="room-list"></ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-quick-search">
+        <div class="panel-header">
+          <h2>Быстрый поиск</h2>
+          <p>Система подбирает комнату по ELO, уровню и теме поля.</p>
+        </div>
+        <div class="quick-search">
+          <div class="card">
+            <h3>Параметры поиска</h3>
+            <div class="search-options">
+              <label>
+                <span>Предпочитаемая тема</span>
+                <select id="quick-theme">
+                  <option value="classic">Классическая</option>
+                </select>
+              </label>
+              <label>
+                <span>Режим</span>
+                <select id="quick-mode">
+                  <option value="Классический">Классический</option>
+                  <option value="Турнирный">Турнирный</option>
+                  <option value="Быстрый">Быстрый</option>
+                </select>
+              </label>
+              <label>
+                <span>Диапазон рейтинга</span>
+                <select id="quick-elo">
+                  <option value="auto">Авто</option>
+                  <option value="narrow">±150</option>
+                  <option value="wide">±300</option>
+                </select>
+              </label>
+            </div>
+            <button class="primary" id="quick-search-button">Начать поиск</button>
+          </div>
+          <div class="card">
+            <h3>Результат</h3>
+            <p id="quick-search-status">Нет активного поиска. Нажмите кнопку выше.</p>
+            <button class="ghost" id="quick-search-stop">Остановить поиск</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-profile">
+        <div class="panel-header">
+          <h2>Профиль</h2>
+          <p>Ваш статус, достижения и статистика по матчам.</p>
+        </div>
+        <div class="profile-grid">
+          <div class="profile-card">
+            <h3>Профиль игрока</h3>
+            <p><strong>Ник:</strong> <span id="profile-name">Гость</span></p>
+            <p><strong>Ранг:</strong> <span id="profile-rank">Новичок</span></p>
+            <p><strong>Уровень:</strong> <span id="profile-level">1</span></p>
+            <p><strong>ELO:</strong> <span id="profile-elo">1000</span></p>
+            <p><strong>Клан:</strong> <span id="profile-clan">Без клана</span></p>
+            <button class="secondary" id="edit-profile">Редактировать</button>
+          </div>
+          <div class="profile-card stats">
+            <h3>Сезонная статистика</h3>
+            <div class="stat-row">
+              <span>Победы</span>
+              <strong id="profile-wins">0</strong>
+            </div>
+            <div class="stat-row">
+              <span>Поражения</span>
+              <strong id="profile-losses">0</strong>
+            </div>
+            <div class="stat-row">
+              <span>Средний доход</span>
+              <strong id="profile-income">0</strong>
+            </div>
+            <div class="stat-row">
+              <span>Серия побед</span>
+              <strong id="profile-streak">0</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-stats">
+        <div class="panel-header">
+          <h2>Глобальная статистика</h2>
+          <p>Сводка по всем матчам, рейтингам и экономике.</p>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <h3>Матчи всего</h3>
+            <strong id="global-matches">0</strong>
+          </div>
+          <div class="stat-card">
+            <h3>Средняя длительность</h3>
+            <strong id="global-duration">0 мин</strong>
+          </div>
+          <div class="stat-card">
+            <h3>Экономика</h3>
+            <strong id="global-economy">0</strong>
+          </div>
+          <div class="stat-card">
+            <h3>Активные игроки</h3>
+            <strong id="global-active">0</strong>
+          </div>
+        </div>
+        <div class="history-panel">
+          <h3>История матчей</h3>
+          <ul id="match-history"></ul>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-leaderboard">
+        <div class="panel-header">
+          <h2>Таблица лидеров</h2>
+          <p>Лучшие игроки сезона по ELO и уровню.</p>
+        </div>
+        <div class="leaderboard">
+          <div class="leaderboard-header">
+            <span>Игрок</span>
+            <span>ELO</span>
+            <span>Уровень</span>
+            <span>Победы</span>
+          </div>
+          <div id="leaderboard-list"></div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-store">
+        <div class="panel-header">
+          <h2>Магазин и кейсы</h2>
+          <p>Кейсы, редкости, скины и эффекты победы.</p>
+        </div>
+        <div class="store-grid">
+          <div class="store-card">
+            <h3>Кейс “Classic Burst”</h3>
+            <p>Шанс получить эпический эффект броска и легендарные кубики.</p>
+            <button class="primary open-case" data-case="Classic Burst" data-price="400">Открыть за 400</button>
+          </div>
+          <div class="store-card">
+            <h3>Кейс “City Echo”</h3>
+            <p>Редкие скины поля и фишек, дополнительный глоу.</p>
+            <button class="secondary open-case" data-case="City Echo" data-price="650">Открыть за 650</button>
+          </div>
+          <div class="store-card">
+            <h3>Набор “Golden Glory”</h3>
+            <p>Фишки, кубики и поле в светлом стиле.</p>
+            <button class="ghost buy-button" data-item="Набор &quot;Golden Glory&quot;">Купить за 1200</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-inventory">
+        <div class="panel-header">
+          <h2>Инвентарь</h2>
+          <p>Ваши фишки, кубики, эффекты побед и редкие скины.</p>
+        </div>
+        <div class="inventory-grid" id="inventory-grid"></div>
+      </section>
+
+      <section class="tab-panel" id="tab-search">
+        <div class="panel-header">
+          <h2>Поиск игроков</h2>
+          <p>Ищите друзей и соперников для дуэлей и клановых матчей.</p>
+        </div>
+        <div class="search-box">
+          <input type="text" id="search-input" placeholder="Введите ник или ID" />
+          <button class="primary" id="search-button">Найти</button>
+        </div>
+        <p class="search-empty" id="search-empty">Ничего не найдено. Попробуйте другой ник.</p>
+        <div class="search-results" id="search-results"></div>
+      </section>
+
+      <section class="tab-panel" id="tab-friends">
+        <div class="panel-header">
+          <h2>Друзья</h2>
+          <p>Управляйте списком друзей и приглашайте в матч.</p>
+        </div>
+        <ul class="friends-list" id="friends-list"></ul>
+      </section>
+
+      <section class="tab-panel" id="tab-achievements">
+        <div class="panel-header">
+          <h2>Достижения</h2>
+          <p>Открывайте редкие награды за победы и коллекции.</p>
+        </div>
+        <div class="achievements-grid" id="achievements-grid"></div>
+      </section>
+
+      <section class="tab-panel" id="tab-rules">
+        <div class="panel-header">
+          <h2>Правила Монополия Онлайн</h2>
+          <p>Полный набор правил, торговли и событий.</p>
+        </div>
+        <ol class="rules-list" id="rules-list"></ol>
+      </section>
+
+      <section class="tab-panel" id="tab-settings">
+        <div class="panel-header">
+          <h2>Настройки</h2>
+          <p>Звук, графика и управление матчами.</p>
+        </div>
+        <div class="settings-list">
+          <label class="setting-item">
+            <span>Громкость эффектов</span>
+            <input type="range" value="70" data-setting="Громкость эффектов" />
+          </label>
+          <label class="setting-item">
+            <span>Музыка</span>
+            <input type="range" value="45" data-setting="Музыка" />
+          </label>
+          <label class="setting-item">
+            <span>Уведомления</span>
+            <input type="checkbox" checked data-setting="Уведомления" />
+          </label>
+          <label class="setting-item">
+            <span>Скорость анимации поля</span>
+            <input type="range" value="55" data-setting="Скорость анимации поля" />
+          </label>
+          <label class="setting-item">
+            <span>Тема интерфейса</span>
+            <select data-setting="Тема интерфейса">
+              <option value="neon">Неоновая</option>
+              <option value="classic">Классическая</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-clans">
+        <div class="panel-header">
+          <h2>Кланы</h2>
+          <p>Создайте или присоединитесь к клану для совместных матчей.</p>
+        </div>
+        <div class="clans-grid">
+          <div class="card">
+            <h3>Ваш клан</h3>
+            <p id="clan-status">Вы пока без клана.</p>
+            <button class="secondary" id="create-clan">Создать клан</button>
+          </div>
+          <div class="card">
+            <h3>Рекомендованные кланы</h3>
+            <ul id="clan-list"></ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="game-overlay" id="game-overlay" aria-hidden="true">
+        <div class="game-layout">
+          <aside class="players-panel">
+            <h3>Игроки</h3>
+            <ul id="players-list"></ul>
+            <div class="player-actions">
+              <button class="primary" id="add-bot">Добавить бота</button>
+              <button class="ghost" id="open-trade">Торговать</button>
+              <button class="secondary" id="pay-bail">Оплатить залог</button>
+            </div>
+            <div class="dice-panel">
+              <div class="dice-row">
+                <div class="dice" data-die="1">4</div>
+                <div class="dice" data-die="2">3</div>
+              </div>
+              <p class="dice-status" id="dice-status">Ожидание броска</p>
+              <button class="primary" id="roll-dice">Бросить кубики</button>
+            </div>
+          </aside>
+
+          <div class="board-wrapper">
+            <div class="board" id="game-board">
+              <div class="board-center">
+                <div class="center-card match-events">
+                  <h4>События матча</h4>
+                  <ul id="match-events"></ul>
+                </div>
+                <div class="center-card center-brand">
+                  <img src="center-field.png" alt="Монополия Онлайн" />
+                  <p>Классическая карта</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="chat-panel">
+            <h3>Чат</h3>
+            <div class="chat-toolbar">
+              <button class="ghost" id="quick-phrases-toggle" type="button">Быстрые фразы</button>
+              <div class="quick-phrases-menu" id="quick-phrases-menu" aria-hidden="true"></div>
+            </div>
+            <div class="chat-messages" id="chat-messages"></div>
+            <div class="chat-input">
+              <input type="text" id="chat-input" placeholder="Введите сообщение" />
+              <button class="primary" id="send-chat">Отправить</button>
+            </div>
+            <div class="emoji-row" id="emoji-row"></div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="modal" id="room-modal" aria-hidden="true">
+        <div class="modal-card">
+          <div class="modal-header">
+            <div>
+              <h2>Создание комнаты</h2>
+              <p>Настройте параметры будущего матча и пригласите друзей.</p>
+            </div>
+            <button class="ghost" id="close-room-modal">Закрыть</button>
+          </div>
+          <form class="modal-form" id="room-form">
+            <label>
+              <span>Название комнаты</span>
+              <input type="text" id="room-name" placeholder="Например, Дикая удача" required />
+            </label>
+            <label>
+              <span>Количество игроков</span>
+              <select id="room-players">
+                <option value="2">2 игрока</option>
+                <option value="3">3 игрока</option>
+                <option value="4">4 игрока</option>
+                <option value="5">5 игроков</option>
+                <option value="6">6 игроков</option>
+              </select>
+            </label>
+            <label>
+              <span>Режим игры</span>
+              <select id="room-mode">
+                <option value="Классический">Классический</option>
+                <option value="Турнирный">Турнирный</option>
+                <option value="Быстрый">Быстрый</option>
+              </select>
+            </label>
+            <label>
+              <span>Тема поля</span>
+              <select id="room-theme">
+                <option value="classic">Классическая</option>
+              </select>
+            </label>
+            <label>
+              <span>Ставка (если есть)</span>
+              <input type="number" id="room-bet" min="0" step="50" placeholder="0" />
+            </label>
+            <label>
+              <span>Доступ</span>
+              <select id="room-privacy">
+                <option value="Открытая">Открытая</option>
+                <option value="По приглашению">По приглашению</option>
+              </select>
+            </label>
+            <button class="primary" type="submit">Создать комнату</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="modal" id="property-modal" aria-hidden="true">
+        <div class="modal-card wide">
+          <div class="modal-header">
+            <div>
+              <h2 id="property-title">Собственность</h2>
+              <p id="property-subtitle">Карточка собственности</p>
+            </div>
+            <button class="ghost" id="close-property">Закрыть</button>
+          </div>
+          <div class="property-body">
+            <div class="property-preview">
+              <img id="property-logo" src="" alt="" />
+              <div class="property-meta">
+                <p><strong>Цена:</strong> <span id="property-price"></span></p>
+                <p><strong>Залог:</strong> <span id="property-mortgage"></span></p>
+                <p><strong>Выкуп:</strong> <span id="property-redeem"></span></p>
+                <p><strong>Филиал:</strong> <span id="property-house"></span></p>
+                <p><strong>Построено:</strong> <span id="property-houses"></span></p>
+                <p><strong>Текущая аренда:</strong> <span id="property-rent"></span></p>
+              </div>
+            </div>
+            <div class="property-actions">
+              <button class="primary" id="buy-property">Купить</button>
+              <button class="secondary" id="build-property">Построить филиал</button>
+              <button class="ghost" id="mortgage-property">Заложить</button>
+              <button class="ghost" id="redeem-property">Выкупить</button>
+              <button class="secondary" id="sell-property">Продать</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="modal" id="trade-modal" aria-hidden="true">
+        <div class="modal-card">
+          <div class="modal-header">
+            <div>
+              <h2>Торговля</h2>
+              <p>Предложите обмен имущества или валюты.</p>
+            </div>
+            <button class="ghost" id="close-trade">Закрыть</button>
+          </div>
+          <form class="modal-form" id="trade-form">
+            <label>
+              <span>Партнёр</span>
+              <select id="trade-player"></select>
+            </label>
+            <label>
+              <span>Собственность партнёра</span>
+              <select id="trade-property"></select>
+            </label>
+            <label>
+              <span>Предложение (💰)</span>
+              <input type="number" id="trade-offer" min="0" step="50" value="150" />
+            </label>
+            <button class="primary" type="submit">Отправить предложение</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="modal" id="case-modal" aria-hidden="true">
+        <div class="modal-card">
+          <div class="modal-header">
+            <div>
+              <h2>Открытие кейса</h2>
+              <p id="case-title">Classic Burst</p>
+            </div>
+            <button class="ghost" id="close-case">Закрыть</button>
+          </div>
+          <div class="case-opening">
+            <div class="case-animation" id="case-animation"></div>
+            <div class="case-reward" id="case-reward">Награда появится здесь</div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <section class="auth-overlay" id="auth-overlay" aria-hidden="true">
+    <div class="auth-card">
+      <div class="auth-header">
+        <h2>Добро пожаловать в Монополия Онлайн</h2>
+        <p>Зарегистрируйтесь или войдите, чтобы создавать комнаты и искать соперников.</p>
+      </div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-auth-tab="login">Вход</button>
+        <button class="auth-tab" data-auth-tab="register">Регистрация</button>
+      </div>
+      <form class="auth-form active" id="login-form">
+        <label>
+          <span>Ник или email</span>
+          <input type="text" id="login-identity" required />
+        </label>
+        <label>
+          <span>Пароль</span>
+          <input type="password" id="login-password" required />
+        </label>
+        <button class="primary" type="submit">Войти</button>
+      </form>
+      <form class="auth-form" id="register-form">
+        <label>
+          <span>Ник</span>
+          <input type="text" id="register-name" required />
+        </label>
+        <label>
+          <span>Email</span>
+          <input type="email" id="register-email" required />
+        </label>
+        <label>
+          <span>Пароль</span>
+          <input type="password" id="register-password" required />
+        </label>
+        <button class="primary" type="submit">Создать аккаунт</button>
+      </form>
+    </div>
+  </section>
+
+  <script src="game.js"></script>
+</body>
+</html>
