@@ -12,14 +12,21 @@ const itemModal = document.querySelector("#item-modal");
 const itemModalBody = document.querySelector("#item-modal-body");
 
 const filterChips = document.querySelectorAll(".filter-chip");
+const heroMap = new Map(heroes.map((hero) => [hero.name, hero]));
+
+const getHeroIcon = (name) => heroMap.get(name)?.icon || "⭐";
+const getHeroLabel = (name) => `${getHeroIcon(name)} ${name}`;
 
 const createHeroCard = (hero) => {
   const card = document.createElement("article");
   card.className = "hero-card";
   card.dataset.role = hero.role;
   card.innerHTML = `
-    <div class="hero-portrait" style="background: ${hero.color}">${hero.name}</div>
-    <h3>${hero.name}</h3>
+    <div class="hero-portrait" style="background: ${hero.color}">
+      <span class="hero-portrait-icon">${hero.icon}</span>
+      <span class="hero-portrait-name">${hero.name}</span>
+    </div>
+    <h3>${hero.icon} ${hero.name}</h3>
     <div class="hero-tags">
       <span class="tag role">${hero.role}</span>
       <span class="tag">${hero.attackType}</span>
@@ -73,7 +80,7 @@ const renderTopHeroes = () => {
           .map(
             (entry, index) => `
             <div class="rank-item">
-              <span>#${index + 1} ${entry.name}</span>
+              <span>#${index + 1} ${getHeroLabel(entry.name)}</span>
               <strong>${entry.rating}</strong>
             </div>
           `
@@ -90,11 +97,12 @@ const renderBuilds = () => {
   builds.forEach((build) => {
     const card = document.createElement("article");
     card.className = "build-card";
+    const heroesLabel = build.heroes.map((name) => getHeroLabel(name)).join(", ");
     card.innerHTML = `
       <h3>${build.name}</h3>
       <p>${build.description}</p>
       <div>
-        <strong>Герои:</strong> ${build.heroes.join(", ")}
+        <strong>Герои:</strong> ${heroesLabel}
       </div>
       <div class="build-items">
         ${build.items.map((item) => `<span class="build-item">${item}</span>`).join("")}
@@ -106,7 +114,7 @@ const renderBuilds = () => {
 
 const renderHeroSelect = () => {
   heroSelect.innerHTML = heroes
-    .map((hero) => `<option value="${hero.name}">${hero.name}</option>`)
+    .map((hero) => `<option value="${hero.name}">${hero.icon} ${hero.name}</option>`)
     .join("");
   heroSelect.value = heroes[0].name;
   updateCounterpicks(heroes[0].name);
@@ -116,37 +124,49 @@ const updateCounterpicks = (heroName) => {
   const data = counterpicks[heroName];
   const strongList = document.querySelector("#strong-list");
   const weakList = document.querySelector("#weak-list");
+  const strongReason = document.querySelector("#strong-reason");
+  const weakReason = document.querySelector("#weak-reason");
 
-  strongList.innerHTML = data.strong
-    .map(
-      (name) => `
-      <div class="counter-item">
-        <span>${name}</span>
-        <span class="counter-arrow">➜</span>
-      </div>
-    `
-    )
-    .join("");
+  const renderCounterList = (entries, list, reason, arrow) => {
+    list.innerHTML = entries
+      .map(
+        (entry) => `
+        <button class="counter-item" type="button" data-reason="${entry.reason}">
+          <span class="counter-hero">${getHeroLabel(entry.name)}</span>
+          <span class="counter-arrow">${arrow}</span>
+        </button>
+      `
+      )
+      .join("");
 
-  weakList.innerHTML = data.weak
-    .map(
-      (name) => `
-      <div class="counter-item">
-        <span>${name}</span>
-        <span class="counter-arrow">⬅︎</span>
-      </div>
-    `
-    )
-    .join("");
+    const buttons = Array.from(list.querySelectorAll(".counter-item"));
+    if (buttons.length > 0) {
+      buttons[0].classList.add("active");
+      reason.textContent = entries[0].reason;
+    } else {
+      reason.textContent = "Нет доступных данных по матчапу.";
+    }
+
+    buttons.forEach((button, index) => {
+      button.addEventListener("click", () => {
+        buttons.forEach((btn) => btn.classList.remove("active"));
+        button.classList.add("active");
+        reason.textContent = entries[index].reason;
+      });
+    });
+  };
+
+  renderCounterList(data.strong, strongList, strongReason, "➜");
+  renderCounterList(data.weak, weakList, weakReason, "⬅︎");
 };
 
 const openHeroModal = (hero) => {
   heroModalBody.innerHTML = `
     <div class="modal-hero">
       <div class="modal-hero-header">
-        <div class="modal-portrait" style="background: ${hero.color}">${hero.name}</div>
+        <div class="modal-portrait" style="background: ${hero.color}">${hero.icon}</div>
         <div>
-          <h3>${hero.name}</h3>
+          <h3>${hero.icon} ${hero.name}</h3>
           <p>${hero.description}</p>
           <div class="modal-tags">
             <span class="modal-tag">${hero.role}</span>
