@@ -3,6 +3,7 @@ const DOTA_DATA = {
     {
       id: "phantom-assassin",
       name: "Phantom Assassin",
+      icon: "🗡️",
       role: "Carry",
       attackType: "Melee",
       color: "linear-gradient(135deg, #f54ea2, #ff7676)",
@@ -36,6 +37,7 @@ const DOTA_DATA = {
     {
       id: "storm-spirit",
       name: "Storm Spirit",
+      icon: "⚡",
       role: "Mid",
       attackType: "Ranged",
       color: "linear-gradient(135deg, #37a1ff, #6bffe8)",
@@ -69,6 +71,7 @@ const DOTA_DATA = {
     {
       id: "crystal-maiden",
       name: "Crystal Maiden",
+      icon: "❄️",
       role: "Support",
       attackType: "Ranged",
       color: "linear-gradient(135deg, #7ce7ff, #a1b8ff)",
@@ -102,6 +105,7 @@ const DOTA_DATA = {
     {
       id: "mars",
       name: "Mars",
+      icon: "🛡️",
       role: "Offlane",
       attackType: "Melee",
       color: "linear-gradient(135deg, #ffb14a, #ff5f6d)",
@@ -135,6 +139,7 @@ const DOTA_DATA = {
     {
       id: "juggernaut",
       name: "Juggernaut",
+      icon: "⚔️",
       role: "Carry",
       attackType: "Melee",
       color: "linear-gradient(135deg, #ff6f91, #fbb034)",
@@ -168,6 +173,7 @@ const DOTA_DATA = {
     {
       id: "shadow-fiend",
       name: "Shadow Fiend",
+      icon: "💀",
       role: "Mid",
       attackType: "Ranged",
       color: "linear-gradient(135deg, #6c5ce7, #2d3436)",
@@ -201,6 +207,7 @@ const DOTA_DATA = {
     {
       id: "hoodwink",
       name: "Hoodwink",
+      icon: "🐿️",
       role: "Support",
       attackType: "Ranged",
       color: "linear-gradient(135deg, #8fd14f, #ffd166)",
@@ -234,6 +241,7 @@ const DOTA_DATA = {
     {
       id: "timbersaw",
       name: "Timbersaw",
+      icon: "🪓",
       role: "Offlane",
       attackType: "Melee",
       color: "linear-gradient(135deg, #ff9f1c, #ff4040)",
@@ -267,6 +275,7 @@ const DOTA_DATA = {
     {
       id: "lina",
       name: "Lina",
+      icon: "🔥",
       role: "Mid",
       attackType: "Ranged",
       color: "linear-gradient(135deg, #ff512f, #f09819)",
@@ -300,6 +309,7 @@ const DOTA_DATA = {
     {
       id: "drow-ranger",
       name: "Drow Ranger",
+      icon: "🏹",
       role: "Carry",
       attackType: "Ranged",
       color: "linear-gradient(135deg, #4b79a1, #283e51)",
@@ -333,6 +343,7 @@ const DOTA_DATA = {
     {
       id: "earthshaker",
       name: "Earthshaker",
+      icon: "🌋",
       role: "Support",
       attackType: "Melee",
       color: "linear-gradient(135deg, #a17c59, #4a2c2a)",
@@ -365,6 +376,7 @@ const DOTA_DATA = {
     {
       id: "bristleback",
       name: "Bristleback",
+      icon: "🐗",
       role: "Offlane",
       attackType: "Melee",
       color: "linear-gradient(135deg, #c850c0, #4158d0)",
@@ -454,52 +466,364 @@ const DOTA_DATA = {
   ],
   counterpicks: {
     "Phantom Assassin": {
-      strong: ["Shadow Fiend", "Drow Ranger", "Lina"],
-      weak: ["Timbersaw", "Bristleback", "Earthshaker"]
+      strong: [
+        {
+          name: "Shadow Fiend",
+          reason: "Прыжок и криты мгновенно наказывают хрупкого мидера без эскейпа."
+        },
+        {
+          name: "Drow Ranger",
+          reason: "Сокращает дистанцию через прыжок и ломает кайтающий стиль."
+        },
+        {
+          name: "Lina",
+          reason: "Быстрый бёрст до БКБ и уклонение от магии через Blur."
+        }
+      ],
+      weak: [
+        {
+          name: "Timbersaw",
+          reason: "Танк с уроном по силе переживает криты и не боится фокуса."
+        },
+        {
+          name: "Bristleback",
+          reason: "Пассивка снижает урон в спину, его трудно взорвать одиночным прокастом."
+        },
+        {
+          name: "Earthshaker",
+          reason: "Контроль и эхо ломают прыжок и наказывают за врыв."
+        }
+      ]
     },
     "Storm Spirit": {
-      strong: ["Juggernaut", "Drow Ranger", "Hoodwink"],
-      weak: ["Shadow Fiend", "Bristleback", "Earthshaker"]
+      strong: [
+        {
+          name: "Juggernaut",
+          reason: "Мобильность позволяет переждать Blade Fury и ловить после спина."
+        },
+        {
+          name: "Drow Ranger",
+          reason: "Подлетает сквозь дистанцию и взрывает до ответа."
+        },
+        {
+          name: "Hoodwink",
+          reason: "Поймать саппорта легко: уязвима к затяжному контролю и бурсту."
+        }
+      ],
+      weak: [
+        {
+          name: "Shadow Fiend",
+          reason: "Сильный лейн и моментальный физический бёрст усложняют разгон."
+        },
+        {
+          name: "Bristleback",
+          reason: "Толстый фронтлайн и снижение урона переживают влеты."
+        },
+        {
+          name: "Earthshaker",
+          reason: "Долгий стан и контроль срывают мобильные комбо."
+        }
+      ]
     },
     "Crystal Maiden": {
-      strong: ["Mars", "Bristleback", "Juggernaut"],
-      weak: ["Storm Spirit", "Phantom Assassin", "Hoodwink"]
+      strong: [
+        {
+          name: "Mars",
+          reason: "Долгий контроль не дает инициировать и ломает арену."
+        },
+        {
+          name: "Bristleback",
+          reason: "Рут и замедление сдерживают его темп и не дают разогнаться."
+        },
+        {
+          name: "Juggernaut",
+          reason: "Frostbite сбивает спин и держит в месте для расстрела."
+        }
+      ],
+      weak: [
+        {
+          name: "Storm Spirit",
+          reason: "Мобильный мидер легко заходит в спину и убивает до ульта."
+        },
+        {
+          name: "Phantom Assassin",
+          reason: "Быстрый прыжок и криты взрывают хрупкого саппорта."
+        },
+        {
+          name: "Hoodwink",
+          reason: "Дальний контроль и снайп сбивают позиционку."
+        }
+      ]
     },
     "Mars": {
-      strong: ["Drow Ranger", "Shadow Fiend", "Lina"],
-      weak: ["Timbersaw", "Juggernaut", "Storm Spirit"]
+      strong: [
+        {
+          name: "Drow Ranger",
+          reason: "Арена и копье ломают дистанцию и запирают стрелка."
+        },
+        {
+          name: "Shadow Fiend",
+          reason: "Сильный контроль и арена мешают дэмэджу и позиционке."
+        },
+        {
+          name: "Lina",
+          reason: "Инициация и стан не дают реализовать бёрст."
+        }
+      ],
+      weak: [
+        {
+          name: "Timbersaw",
+          reason: "Чистый урон и мобильность переживают арену."
+        },
+        {
+          name: "Juggernaut",
+          reason: "Спин и ульт обходят щит и быстро режут фронтлайн."
+        },
+        {
+          name: "Storm Spirit",
+          reason: "Уходит из арены и фокусит заднюю линию."
+        }
+      ]
     },
     "Juggernaut": {
-      strong: ["Crystal Maiden", "Hoodwink", "Lina"],
-      weak: ["Bristleback", "Mars", "Earthshaker"]
+      strong: [
+        {
+          name: "Crystal Maiden",
+          reason: "Spinning immunity игнорирует контроль и быстро убивает саппорта."
+        },
+        {
+          name: "Hoodwink",
+          reason: "Ульт и спин не дают ей уйти и перехватить дистанцию."
+        },
+        {
+          name: "Lina",
+          reason: "Спин защищает от магии, а омнислэш сбивает касты."
+        }
+      ],
+      weak: [
+        {
+          name: "Bristleback",
+          reason: "Толстый фронтлайн не боится омнислэша и переживает спин."
+        },
+        {
+          name: "Mars",
+          reason: "Арена с контролем ловит после спина и сбивает темп."
+        },
+        {
+          name: "Earthshaker",
+          reason: "Стан и эхо мешают реализовать ульт."
+        }
+      ]
     },
     "Shadow Fiend": {
-      strong: ["Storm Spirit", "Hoodwink", "Crystal Maiden"],
-      weak: ["Phantom Assassin", "Mars", "Earthshaker"]
+      strong: [
+        {
+          name: "Storm Spirit",
+          reason: "Доминирует лейн и убивает до набора маны."
+        },
+        {
+          name: "Hoodwink",
+          reason: "Быстрый физический бёрст ловит её до выхода из контроля."
+        },
+        {
+          name: "Crystal Maiden",
+          reason: "Хрупкий саппорт умирает от пары разов."
+        }
+      ],
+      weak: [
+        {
+          name: "Phantom Assassin",
+          reason: "Прыжок и криты быстро стирают беззащитного мидера."
+        },
+        {
+          name: "Mars",
+          reason: "Инициация с арены ломает позиционку и ульт."
+        },
+        {
+          name: "Earthshaker",
+          reason: "Долгий контроль и эхо взрывают без эскейпа."
+        }
+      ]
     },
     "Hoodwink": {
-      strong: ["Crystal Maiden", "Drow Ranger", "Lina"],
-      weak: ["Storm Spirit", "Mars", "Timbersaw"]
+      strong: [
+        {
+          name: "Crystal Maiden",
+          reason: "Дальность и контроль не дают подойти и активировать ульт."
+        },
+        {
+          name: "Drow Ranger",
+          reason: "Снайп и контроль из кустов ломают её позицию."
+        },
+        {
+          name: "Lina",
+          reason: "Дисплейс и контроль сбивают касты и комбо."
+        }
+      ],
+      weak: [
+        {
+          name: "Storm Spirit",
+          reason: "Мобильность позволяет догонять и убивать до эвейда."
+        },
+        {
+          name: "Mars",
+          reason: "Арена закрывает ей пространство для манёвра."
+        },
+        {
+          name: "Timbersaw",
+          reason: "Толстый герой игнорирует прокаст и быстро сближает дистанцию."
+        }
+      ]
     },
     "Timbersaw": {
-      strong: ["Bristleback", "Mars", "Juggernaut"],
-      weak: ["Drow Ranger", "Storm Spirit", "Shadow Fiend"]
+      strong: [
+        {
+          name: "Bristleback",
+          reason: "Чистый урон и снижение силы режут выживаемость фронтлайна."
+        },
+        {
+          name: "Mars",
+          reason: "Переживает арену и наказывает за ближний бой."
+        },
+        {
+          name: "Juggernaut",
+          reason: "Броня и регенерация нейтрализуют омнислэш."
+        }
+      ],
+      weak: [
+        {
+          name: "Drow Ranger",
+          reason: "Сильный физический урон по дистанции и сайленс не дают приблизиться."
+        },
+        {
+          name: "Storm Spirit",
+          reason: "Мобильный маг обходит броню и выжигает ману."
+        },
+        {
+          name: "Shadow Fiend",
+          reason: "Высокий физический урон и минус броня ломают танка."
+        }
+      ]
     },
     "Lina": {
-      strong: ["Timbersaw", "Bristleback", "Mars"],
-      weak: ["Phantom Assassin", "Storm Spirit", "Juggernaut"]
+      strong: [
+        {
+          name: "Timbersaw",
+          reason: "Магический бёрст пробивает его броню и реген."
+        },
+        {
+          name: "Bristleback",
+          reason: "Дальний бёрст не даёт подойти и стакать пассивку."
+        },
+        {
+          name: "Mars",
+          reason: "Постоянный каст и контроль режут его инициацию."
+        }
+      ],
+      weak: [
+        {
+          name: "Phantom Assassin",
+          reason: "Прыжок и криты быстро убивают до ульта."
+        },
+        {
+          name: "Storm Spirit",
+          reason: "Мобильность сбивает касты и ловит на позиционке."
+        },
+        {
+          name: "Juggernaut",
+          reason: "Спин игнорирует магию, омнислэш наказывает за ошибку."
+        }
+      ]
     },
     "Drow Ranger": {
-      strong: ["Timbersaw", "Bristleback", "Mars"],
-      weak: ["Storm Spirit", "Phantom Assassin", "Earthshaker"]
+      strong: [
+        {
+          name: "Timbersaw",
+          reason: "Дальний физический урон держит на расстоянии и режет броню."
+        },
+        {
+          name: "Bristleback",
+          reason: "Кайт и сайленс не дают ворваться и стакать пассивку."
+        },
+        {
+          name: "Mars",
+          reason: "Сайленс и дистанция ломают попытки инициации."
+        }
+      ],
+      weak: [
+        {
+          name: "Storm Spirit",
+          reason: "Быстро сокращает дистанцию и убивает без защиты."
+        },
+        {
+          name: "Phantom Assassin",
+          reason: "Прыжок и криты наказывают за отсутствие эскейпа."
+        },
+        {
+          name: "Earthshaker",
+          reason: "Фиссура и эхо ловят за стационарную позицию."
+        }
+      ]
     },
     "Earthshaker": {
-      strong: ["Drow Ranger", "Phantom Assassin", "Shadow Fiend"],
-      weak: ["Hoodwink", "Lina", "Storm Spirit"]
+      strong: [
+        {
+          name: "Drow Ranger",
+          reason: "Эхо по плотной пачке и стан сбивают дистанционный урон."
+        },
+        {
+          name: "Phantom Assassin",
+          reason: "Долгий контроль ловит после прыжка."
+        },
+        {
+          name: "Shadow Fiend",
+          reason: "Без эскейпа инициация приводит к быстрому фокусу."
+        }
+      ],
+      weak: [
+        {
+          name: "Hoodwink",
+          reason: "Дальность и мобильность усложняют точную инициацию."
+        },
+        {
+          name: "Lina",
+          reason: "Бёрст с дистанции не даёт войти в позицию."
+        },
+        {
+          name: "Storm Spirit",
+          reason: "Слишком мобильный, уходит от контроля и ловит саппорта."
+        }
+      ]
     },
     "Bristleback": {
-      strong: ["Juggernaut", "Lina", "Shadow Fiend"],
-      weak: ["Timbersaw", "Drow Ranger", "Crystal Maiden"]
+      strong: [
+        {
+          name: "Juggernaut",
+          reason: "Переживает омнислэш и выигрывает затяжные файты."
+        },
+        {
+          name: "Lina",
+          reason: "Толстый фронтлайн впитывает бёрст и добирается до мага."
+        },
+        {
+          name: "Shadow Fiend",
+          reason: "Выдерживает физический урон и ломает позиционку."
+        }
+      ],
+      weak: [
+        {
+          name: "Timbersaw",
+          reason: "Снижение силы и чистый урон режут выживаемость."
+        },
+        {
+          name: "Drow Ranger",
+          reason: "Кайт и сайленс не дают войти в бой."
+        },
+        {
+          name: "Crystal Maiden",
+          reason: "Рут и замедление держат на дистанции и сбивают темп."
+        }
+      ]
     }
   },
   topHeroes: [
