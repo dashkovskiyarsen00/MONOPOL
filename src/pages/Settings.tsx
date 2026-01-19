@@ -2,15 +2,29 @@ import React, { useRef, useState } from "react";
 import { useStore } from "../data/store";
 import type { MatchRecord, SettingsState } from "../types";
 
+const SCHEMA_VERSION = 1;
+
+interface ExportPayload {
+  schemaVersion: number;
+  exportedAt: string;
+  matches: MatchRecord[];
+}
+
 const Settings: React.FC = () => {
   const { matches, settings, updateSettings, importMatches, resetMatches } = useStore();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [importPreview, setImportPreview] = useState<number | null>(null);
+  const [pendingImport, setPendingImport] = useState<MatchRecord[] | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
 
   const exportData = () => {
-    const blob = new Blob([JSON.stringify(matches, null, 2)], { type: "application/json" });
+    const payload: ExportPayload = {
+      schemaVersion: SCHEMA_VERSION,
+      exportedAt: new Date().toISOString(),
+      matches,
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -20,9 +34,10 @@ const Settings: React.FC = () => {
   };
 
   const validateMatches = (data: unknown): MatchRecord[] => {
-    if (!Array.isArray(data)) throw new Error("Файл должен содержать массив матчей.");
+    const rawMatches = Array.isArray(data) ? data : (data as ExportPayload)?.matches;
+    if (!Array.isArray(rawMatches)) throw new Error("Файл должен содержать массив матчей или объект экспорта.");
     const valid: MatchRecord[] = [];
-    data.forEach((item) => {
+    rawMatches.forEach((item) => {
       if (
         typeof item.id === "string" &&
         typeof item.createdAt === "string" &&
@@ -48,13 +63,12 @@ const Settings: React.FC = () => {
       const existingIds = new Set(matches.map((match) => match.id));
       const deduped = incoming.filter((match) => !existingIds.has(match.id));
       setImportPreview(deduped.length);
+      setPendingImport(deduped);
       setImportError(null);
-      if (deduped.length > 0) {
-        await importMatches([...matches, ...deduped]);
-      }
     } catch (error) {
       setImportError((error as Error).message);
       setImportPreview(null);
+      setPendingImport(null);
     }
   };
 
@@ -119,7 +133,20 @@ const Settings: React.FC = () => {
               }}
             />
           </div>
-          {importPreview !== null && <p className="muted">Добавлено матчей: {importPreview}</p>}
+          {importPreview !== null && <p className="muted">Будет добавлено матчей: {importPreview}</p>}
+          {pendingImport && pendingImport.length > 0 && (
+            <button
+              type="button"
+              className="primary"
+              onClick={async () => {
+                await importMatches([...matches, ...pendingImport]);
+                setPendingImport(null);
+                setImportPreview(null);
+              }}
+            >
+              Импортировать {pendingImport.length} матч(ей)
+            </button>
+          )}
           {importError && <p className="error">Ошибка: {importError}</p>}
           <button type="button" className="danger" onClick={() => setConfirmReset(true)}>
             Reset all data

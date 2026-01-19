@@ -9,6 +9,8 @@ export const applyFilters = (matches: MatchRecord[], filters: MatchFilters) => {
       fromDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     } else if (filters.period === "30d") {
       fromDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    } else if (filters.period === "90d") {
+      fromDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
     } else if (filters.period === "custom" && filters.from && filters.to) {
       fromDate = new Date(filters.from);
       const toDate = new Date(filters.to);
@@ -33,6 +35,10 @@ export const applyFilters = (matches: MatchRecord[], filters: MatchFilters) => {
   }
   if (filters.role && filters.role !== "all") {
     result = result.filter((match) => match.myRole === filters.role);
+  }
+  if (filters.tags && filters.tags.length > 0) {
+    const tagSet = new Set(filters.tags.map((tag) => tag.toLowerCase()));
+    result = result.filter((match) => match.tags.some((tag) => tagSet.has(tag.toLowerCase())));
   }
   if (filters.search) {
     const term = filters.search.toLowerCase();

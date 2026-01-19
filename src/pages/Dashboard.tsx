@@ -4,6 +4,7 @@ import { useStore } from "../data/store";
 import { applyFilters } from "../utils/filters";
 import { calculateWinrate, formatDate } from "../utils/format";
 import { aggregateByHero } from "../utils/analytics";
+import { groupIntoSessions } from "../utils/sessions";
 import MatchCard from "../components/MatchCard";
 import type { PageKey } from "../components/Sidebar";
 
@@ -34,6 +35,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
   const heroStats = useMemo(() => aggregateByHero(filtered, "myHero"), [filtered]);
   const enemyStats = useMemo(() => aggregateByHero(filtered, "enemies"), [filtered]);
+  const sessions = useMemo(() => groupIntoSessions(filtered, 90), [filtered]);
 
   const topHeroes = [...heroStats].sort((a, b) => b.winrate - a.winrate).slice(0, 5);
   const toughEnemies = [...enemyStats]
@@ -59,6 +61,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           <option value="all">Весь период</option>
           <option value="7d">7 дней</option>
           <option value="30d">30 дней</option>
+          <option value="90d">90 дней</option>
         </select>
         <select
           value={filters.result}
@@ -160,6 +163,31 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             )}
             {filtered.length > 0 && (
               <p className="muted">Последнее обновление: {formatDate(filtered[0].createdAt, settings.timeFormat)}</p>
+            )}
+          </div>
+
+          <div className="panel">
+            <h3>Последние сессии</h3>
+            {sessions.length === 0 ? (
+              <p className="muted">Сессий пока нет.</p>
+            ) : (
+              <div className="session-list">
+                {sessions.slice(0, 5).map((session) => (
+                  <div key={session.id} className="session-card">
+                    <div>
+                      <h4>{formatDate(session.start, settings.timeFormat)}</h4>
+                      <p className="muted">
+                        {session.games} матч(ей) · {session.winrate}% winrate
+                      </p>
+                    </div>
+                    <div className="session-meta">
+                      <span>W {session.wins}</span>
+                      <span>L {session.losses}</span>
+                      <span>Top: {session.topHero ?? "-"}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         </>
