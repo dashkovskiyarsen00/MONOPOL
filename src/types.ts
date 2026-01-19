@@ -26,7 +26,7 @@ export interface SettingsState {
 }
 
 export interface MatchFilters {
-  period: "all" | "7d" | "30d" | "custom";
+  period: "all" | "7d" | "30d" | "90d" | "custom";
   from?: string;
   to?: string;
   hero?: string;
@@ -34,4 +34,5 @@ export interface MatchFilters {
   mode?: MatchMode | "all";
   role?: MatchRole | "all";
   search?: string;
+  tags?: string[];
 }

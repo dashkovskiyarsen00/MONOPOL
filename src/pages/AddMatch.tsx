@@ -8,6 +8,7 @@ import HeroSelect from "../components/HeroSelect";
 import HeroMultiSelect from "../components/HeroMultiSelect";
 import TagInput from "../components/TagInput";
 import type { PageKey } from "../components/Sidebar";
+import { getPopularTags } from "../utils/tags";
 
 interface AddMatchProps {
   onNavigate: (page: PageKey) => void;
@@ -26,7 +27,7 @@ const emptyMatch = (): MatchRecord => ({
 });
 
 const AddMatch: React.FC<AddMatchProps> = ({ onNavigate }) => {
-  const { addMatch, settings } = useStore();
+  const { addMatch, settings, matches } = useStore();
   const [match, setMatch] = useState<MatchRecord>(emptyMatch());
   const [errors, setErrors] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
@@ -44,6 +45,8 @@ const AddMatch: React.FC<AddMatchProps> = ({ onNavigate }) => {
     if (!settings.autoSaveDraft) return;
     saveDraft(match).catch(() => undefined);
   }, [match, settings.autoSaveDraft]);
+
+  const popularTags = useMemo(() => getPopularTags(matches, 8), [matches]);
 
   const validate = () => {
     const nextErrors: string[] = [];
@@ -211,6 +214,7 @@ const AddMatch: React.FC<AddMatchProps> = ({ onNavigate }) => {
           values={match.tags}
           onChange={(values) => setMatch((prev) => ({ ...prev, tags: values }))}
           placeholder="tilt, throw, good draft"
+          suggestions={popularTags}
         />
 
         <div className="field">
@@ -228,6 +232,16 @@ const AddMatch: React.FC<AddMatchProps> = ({ onNavigate }) => {
           </button>
           <button type="button" className="secondary" disabled={!canSave || saving} onClick={() => save(true)}>
             Save & Add Another
+          </button>
+          <button
+            type="button"
+            className="ghost"
+            onClick={async () => {
+              await saveDraft(null);
+              setMatch(emptyMatch());
+            }}
+          >
+            Очистить черновик
           </button>
           <button type="button" className="ghost" onClick={() => onNavigate("dashboard")}>
             Cancel

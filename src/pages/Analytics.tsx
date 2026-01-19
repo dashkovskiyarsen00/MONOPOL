@@ -4,6 +4,8 @@ import { useStore } from "../data/store";
 import { applyFilters } from "../utils/filters";
 import { aggregateByHero, buildSynergyMatrix, buildTrend } from "../utils/analytics";
 import { calculateWinrate } from "../utils/format";
+import TagFilterBar from "../components/TagFilterBar";
+import { getPopularTags } from "../utils/tags";
 
 const Analytics: React.FC = () => {
   const { matches } = useStore();
@@ -12,11 +14,13 @@ const Analytics: React.FC = () => {
     result: "all",
     mode: "all",
     role: "all",
+    tags: [],
   });
   const [heroFocus, setHeroFocus] = useState("");
   const [trendBucket, setTrendBucket] = useState<"week" | "month">("week");
 
   const filtered = useMemo(() => applyFilters(matches, filters), [matches, filters]);
+  const popularTags = useMemo(() => getPopularTags(matches, 10), [matches]);
 
   const winrateByHero = useMemo(() => aggregateByHero(filtered, "myHero"), [filtered]);
   const opponents = useMemo(() => aggregateByHero(filtered, "enemies"), [filtered]);
@@ -46,6 +50,7 @@ const Analytics: React.FC = () => {
           <option value="all">Весь период</option>
           <option value="7d">7 дней</option>
           <option value="30d">30 дней</option>
+          <option value="90d">90 дней</option>
         </select>
         <select
           value={filters.mode}
@@ -72,6 +77,23 @@ const Analytics: React.FC = () => {
           <option value="week">По неделям</option>
           <option value="month">По месяцам</option>
         </select>
+      </div>
+
+      <div className="panel">
+        <h3>Фильтр по тэгам</h3>
+        <TagFilterBar
+          tags={popularTags}
+          selected={filters.tags ?? []}
+          onToggle={(tag) =>
+            setFilters((prev) => ({
+              ...prev,
+              tags: prev.tags?.includes(tag)
+                ? prev.tags.filter((value) => value !== tag)
+                : [...(prev.tags ?? []), tag],
+            }))
+          }
+          label="Популярные"
+        />
       </div>
 
       <div className="grid two">

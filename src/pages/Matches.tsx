@@ -1,12 +1,16 @@
 import React, { useMemo, useState } from "react";
-import type { MatchRecord, MatchResult, MatchMode, MatchRole } from "../types";
+import type { MatchRecord, MatchResult, MatchMode } from "../types";
 import { useStore } from "../data/store";
 import { applyFilters } from "../utils/filters";
-import { formatDate, toLocalInputValue, fromLocalInputValue } from "../utils/format";
+import { formatDate } from "../utils/format";
 import MatchCard from "../components/MatchCard";
+import MatchDetailsModal from "../components/MatchDetailsModal";
+import TagFilterBar from "../components/TagFilterBar";
+import { getPopularTags } from "../utils/tags";
+import { createMatchDraftFromMatch } from "../utils/matches";
+import { saveDraft } from "../data/db";
 import Modal from "../components/Modal";
-import HeroMultiSelect from "../components/HeroMultiSelect";
-import TagInput from "../components/TagInput";
+import type { PageKey } from "../components/Sidebar";
 
 const sortOptions = [
   { value: "date_desc", label: "Дата (сначала новые)" },
@@ -17,7 +21,11 @@ const sortOptions = [
   { value: "result", label: "Результат" },
 ];
 
-const Matches: React.FC = () => {
+interface MatchesProps {
+  onNavigate: (page: PageKey) => void;
+}
+
+const Matches: React.FC<MatchesProps> = ({ onNavigate }) => {
   const { matches, settings, deleteMatch, updateMatch } = useStore();
   const [search, setSearch] = useState("");
   const [heroFilter, setHeroFilter] = useState("");
@@ -26,8 +34,11 @@ const Matches: React.FC = () => {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [sortBy, setSortBy] = useState("date_desc");
+  const [tagFilters, setTagFilters] = useState<string[]>([]);
   const [selected, setSelected] = useState<MatchRecord | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const popularTags = useMemo(() => getPopularTags(matches, 10), [matches]);
 
   const filtered = useMemo(() => {
     const list = applyFilters(matches, {
@@ -38,6 +49,7 @@ const Matches: React.FC = () => {
       result: resultFilter || "all",
       mode: modeFilter || "all",
       search: search || undefined,
+      tags: tagFilters,
     });
     const sorted = [...list];
     sorted.sort((a, b) => {
@@ -57,24 +69,23 @@ const Matches: React.FC = () => {
       }
     });
     return sorted;
-  }, [matches, heroFilter, modeFilter, resultFilter, search, dateFrom, dateTo, sortBy]);
-
-  const updateSelected = (update: Partial<MatchRecord>) => {
-    if (!selected) return;
-    setSelected({ ...selected, ...update });
-  };
-
-  const saveSelected = async () => {
-    if (!selected) return;
-    if (!selected.myHero || !selected.result) return;
-    await updateMatch(selected);
-  };
+  }, [matches, heroFilter, modeFilter, resultFilter, search, dateFrom, dateTo, sortBy, tagFilters]);
 
   const handleDelete = async () => {
     if (!selected) return;
     await deleteMatch(selected.id);
     setConfirmDelete(false);
     setSelected(null);
+  };
+
+  const handleDuplicate = async (match: MatchRecord) => {
+    const draft = createMatchDraftFromMatch(match);
+    await saveDraft(draft);
+    onNavigate("add");
+  };
+
+  const toggleTag = (tag: string) => {
+    setTagFilters((prev) => (prev.includes(tag) ? prev.filter((item) => item !== tag) : [...prev, tag]));
   };
 
   return (
@@ -121,6 +132,15 @@ const Matches: React.FC = () => {
           ))}
         </select>
       </div>
+      <div className="panel">
+        <h3>Быстрый фильтр по тэгам</h3>
+        <TagFilterBar
+          tags={popularTags}
+          selected={tagFilters}
+          onToggle={toggleTag}
+          label="Популярные"
+        />
+      </div>
 
       {filtered.length === 0 ? (
         <div className="state">Матчи не найдены.</div>
@@ -138,114 +158,18 @@ const Matches: React.FC = () => {
       )}
 
       {selected && (
-        <Modal
-          title={`Матч: ${selected.myHero}`}
+        <MatchDetailsModal
+          match={selected}
+          timeFormat={settings.timeFormat}
           onClose={() => setSelected(null)}
-          actions={
-            <>
-              <button type="button" className="danger" onClick={() => setConfirmDelete(true)}>
-                Удалить
-              </button>
-              <button type="button" className="primary" onClick={saveSelected}>
-                Сохранить изменения
-              </button>
-            </>
-          }
-        >
-          <div className="modal-grid">
-            <div>
-              <label>Дата/время</label>
-              <input
-                type="datetime-local"
-                value={toLocalInputValue(selected.playedAt)}
-                onChange={(event) => updateSelected({ playedAt: fromLocalInputValue(event.target.value) })}
-              />
-            </div>
-            <div>
-              <label>Герой</label>
-              <input
-                type="text"
-                value={selected.myHero}
-                onChange={(event) => updateSelected({ myHero: event.target.value })}
-              />
-            </div>
-            <div>
-              <label>Режим</label>
-              <select
-                value={selected.mode}
-                onChange={(event) => updateSelected({ mode: event.target.value as MatchMode })}
-              >
-                <option value="Ranked">Ranked</option>
-                <option value="Unranked">Unranked</option>
-                <option value="Turbo">Turbo</option>
-                <option value="Custom">Custom</option>
-              </select>
-            </div>
-            <div>
-              <label>Результат</label>
-              <select
-                value={selected.result}
-                onChange={(event) => updateSelected({ result: event.target.value as MatchResult })}
-              >
-                <option value="Win">Win</option>
-                <option value="Loss">Loss</option>
-              </select>
-            </div>
-            <div>
-              <label>Длительность (мин)</label>
-              <input
-                type="number"
-                value={selected.durationMin ?? ""}
-                onChange={(event) =>
-                  updateSelected({ durationMin: event.target.value ? Number(event.target.value) : undefined })
-                }
-              />
-            </div>
-            <div>
-              <label>Роль</label>
-              <select
-                value={selected.myRole ?? ""}
-                onChange={(event) =>
-                  updateSelected({ myRole: event.target.value ? (event.target.value as MatchRole) : undefined })
-                }
-              >
-                <option value="">Не указано</option>
-                <option value="Carry">Carry</option>
-                <option value="Mid">Mid</option>
-                <option value="Offlane">Offlane</option>
-                <option value="Support">Support</option>
-                <option value="Hard Support">Hard Support</option>
-              </select>
-            </div>
-          </div>
-
-          <HeroMultiSelect
-            label="Союзники"
-            values={selected.allies}
-            onChange={(values) => updateSelected({ allies: values })}
-            limit={4}
-          />
-          <HeroMultiSelect
-            label="Противники"
-            values={selected.enemies}
-            onChange={(values) => updateSelected({ enemies: values })}
-            limit={5}
-          />
-          <TagInput
-            label="Тэги"
-            values={selected.tags}
-            onChange={(values) => updateSelected({ tags: values })}
-          />
-          <div className="field">
-            <label>Заметки</label>
-            <textarea
-              rows={4}
-              value={selected.notes ?? ""}
-              onChange={(event) => updateSelected({ notes: event.target.value })}
-            />
-          </div>
-          <p className="muted">Создано: {formatDate(selected.createdAt, settings.timeFormat)}</p>
-        </Modal>
+          onSave={updateMatch}
+          onDelete={(match) => {
+            setSelected(match);
+            setConfirmDelete(true);
+          }}
+          onDuplicate={handleDuplicate}
+          tagSuggestions={popularTags}
+        />
       )}
 
       {confirmDelete && selected && (

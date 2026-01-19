@@ -1,6 +1,6 @@
 import React from "react";
 
-export type PageKey = "dashboard" | "add" | "matches" | "analytics" | "settings";
+export type PageKey = "dashboard" | "add" | "matches" | "analytics" | "counters" | "settings";
 
 interface SidebarProps {
   current: PageKey;
@@ -13,6 +13,7 @@ const Sidebar: React.FC<SidebarProps> = ({ current, onNavigate }) => {
     { key: "add", label: "Add Match" },
     { key: "matches", label: "Matches" },
     { key: "analytics", label: "Analytics" },
+    { key: "counters", label: "Counters / Контрпики" },
     { key: "settings", label: "Settings" },
   ];
 
